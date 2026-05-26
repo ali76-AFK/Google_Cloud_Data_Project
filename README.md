@@ -1,5 +1,10 @@
 # Google Cloud Data Project
 
+<p align="center">
+  <img src="./output_GUI.png" alt="CampaignPulse GUI" width="900">
+</p>
+
+
 A small end-to-end analytics project built on Google Cloud and BigQuery using the public GA4 sample ecommerce dataset. The project stages raw event data, builds marts for reporting, and exposes results through a local API for dashboard-style consumption.
 
 ## Features
