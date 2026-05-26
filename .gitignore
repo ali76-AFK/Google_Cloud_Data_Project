@@ -1,0 +1,39 @@
+# Python / cache
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment / secrets
+.env
+.env.*
+*.env
+secrets.*
+credentials*
+service-account*.json
+*.pem
+*.key
+
+# Google Cloud / local auth
+.config/
+gcloud/
+adc.json
+
+# Local outputs
+tmp/
+*.log
+*.tmp
+output/
+.DS_Store
+
+# Editors / OS
+.vscode/
+.idea/
+
+node_modules/
+frontend/node_modules/
+
+*.bak
+*.before-*
+
+*.bak*

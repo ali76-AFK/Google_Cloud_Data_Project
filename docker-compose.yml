@@ -1,0 +1,64 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: infra/docker/backend.Dockerfile
+    env_file:
+      - .env
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      APP_HOST: ${APP_HOST:-0.0.0.0}
+      BACKEND_PORT: ${BACKEND_PORT:-8000}
+      DATA_MODE: ${DATA_MODE:-mock}
+      USE_BIGQUERY: ${USE_BIGQUERY:-false}
+      GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT:-YOUR_GCP_PROJECT_ID}
+      BIGQUERY_PROJECT: ${BIGQUERY_PROJECT:-bigquery-public-data}
+      BIGQUERY_DATASET: ${BIGQUERY_DATASET:-ga4_obfuscated_sample_ecommerce}
+      BIGQUERY_LOCATION: ${BIGQUERY_LOCATION:-US}
+      BIGQUERY_BILLING_PROJECT: ${BIGQUERY_BILLING_PROJECT:-}
+      GOOGLE_APPLICATION_CREDENTIALS: /root/.config/gcloud/application_default_credentials.json
+      BQ_ENABLE_DRY_RUN: ${BQ_ENABLE_DRY_RUN:-true}
+      BQ_MAX_BYTES_BILLED: ${BQ_MAX_BYTES_BILLED:-1000000000}
+      BQ_DEFAULT_START_DATE: ${BQ_DEFAULT_START_DATE:-2020-11-01}
+      BQ_DEFAULT_END_DATE: ${BQ_DEFAULT_END_DATE:-2021-01-31}
+      API_PAGE_SIZE_DEFAULT: ${API_PAGE_SIZE_DEFAULT:-25}
+      API_PAGE_SIZE_MAX: ${API_PAGE_SIZE_MAX:-100}
+      FORECAST_DEFAULT_METRIC: ${FORECAST_DEFAULT_METRIC:-purchase_revenue}
+      FORECAST_DEFAULT_HORIZON_DAYS: ${FORECAST_DEFAULT_HORIZON_DAYS:-7}
+      FORECAST_MODEL: ${FORECAST_MODEL:-holt}
+    dns:
+      - 192.168.179.1
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./backend:/app/backend
+      - ./sql:/app/sql
+      - ./data:/app/data
+      - ./docs:/app/docs
+      - ./scripts:/app/scripts
+      - /home/ali-al-kelabi/.config/gcloud/application_default_credentials.json:/root/.config/gcloud/application_default_credentials.json:ro
+    command: uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  frontend:
+    build:
+      context: .
+      dockerfile: infra/docker/frontend.Dockerfile
+    env_file:
+      - .env
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+      FRONTEND_PORT: ${FRONTEND_PORT:-3000}
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    volumes:
+      - ./frontend:/app/frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    command: sh -c "cd /app/frontend && npm install && npm run dev -- --host 0.0.0.0 --port 3000"
