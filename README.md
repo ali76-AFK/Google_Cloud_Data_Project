@@ -1,5 +1,5 @@
 # Google Cloud Data Project
-
+## CampaignPulse – Analytics Dashboard for Purchase Tracking and KPI Reporting
 <p align="center">
   <img src="./output_GUI.png" alt="CampaignPulse GUI" width="900">
 </p>
